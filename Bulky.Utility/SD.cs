@@ -26,6 +26,9 @@ namespace Bulky.Utility
         public const string PaymentStatusRejected = "Rejected";
 
 
+        public const string SessionCart = "SessionShoppingCart";
+
+
 
     }
 }
