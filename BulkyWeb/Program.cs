@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.UI.Services;
 using Bulky.Utility;
 using Stripe;
+using Bulky.DataAccess.DbInitializer;
 
 var builder = WebApplication.CreateBuilder(args);
 //register service in DI
@@ -14,6 +15,8 @@ builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 builder.Services.AddScoped<IEmailSender, EmailSender>();
 //register stripe
 builder.Services.Configure<StripeSettings>(builder.Configuration.GetSection("Stripe"));
+//register dbinitializer
+builder.Services.AddScoped<IDbInitializer, DbInitializer>();
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();
@@ -66,9 +69,19 @@ app.UseAuthentication();
 
 app.UseAuthorization();
 app.UseSession();
+SeedDatabase();
 app.MapControllerRoute(
 	name: "default",
 	pattern: "{area=Customer}/{controller=Home}/{action=Index}/{id?}");
 app.MapRazorPages();
 
 app.Run();
+
+void SeedDatabase()
+{
+   using(var scope = app.Services.CreateScope())
+	{
+		var dbInitializer = scope.ServiceProvider.GetRequiredService<IDbInitializer>();
+		dbInitializer.Initialize();
+	}
+}
